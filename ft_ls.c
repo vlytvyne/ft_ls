@@ -12,12 +12,25 @@
 
 #include "ls.h"
 
-void	print_list(t_list *lst)
+void	print_files(t_list *lst)
 {
-	t_stat fstat;
+	t_stat	fstat;
+	char	*file_name;
+	int		mode;
 
+	file_name = ft_strrchr((char*)lst->content, '/') + 1;
 	stat((char*)lst->content, &fstat);
-	ft_printf("%s -- %.7o\n", (char*)lst->content, fstat.st_mode);
+	mode = fstat.st_mode;
+	ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
+}
+
+void	exit_properly(const char *msg)
+{
+	if (errno == EACCES)
+		ft_printf("ft_ls: %s: Permission denied\n", ft_strchr(msg, '/') ? ft_strrchr(msg, '/') + 1 : msg);
+	else if (errno == ENOENT)
+		ft_printf("ft_ls: %s: No such file or directory\n", msg);
+	exit(errno);
 }
 
 t_list	*extract_dir_entries(const char *dir_name)
@@ -26,13 +39,21 @@ t_list	*extract_dir_entries(const char *dir_name)
 	t_dent	*dent;
 	t_list	*head;
 	t_list	*new;
+	char	*file_name;
 
-	dir = opendir(dir_name);
+	if (!(dir = opendir(dir_name)))
+		exit_properly(dir_name);
 	if ((dent = readdir(dir)))
-		head = ft_lstnew(dent->d_name, ft_strlen(dent->d_name) + 1);
+	{
+		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
+		head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
+		free(file_name);
+	}
 	while ((dent = readdir(dir)))
 	{
-		new = ft_lstnew(dent->d_name, ft_strlen(dent->d_name) + 1);
+		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
+		new = ft_lstnew(file_name, ft_strlen(file_name) + 1);
+		free(file_name);
 		lst_add_end(head, new);
 	}
 	closedir(dir);
@@ -42,6 +63,8 @@ t_list	*extract_dir_entries(const char *dir_name)
 int		main(void)
 {
 	t_list *list;
-	list = extract_dir_entries(".");
-	ft_lstiter(list, print_list);
+
+	list = extract_dir_entries("test/no");
+	ft_lstiter(list, print_files);
+	//system("leaks a.out");
 }
