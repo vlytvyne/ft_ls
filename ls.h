@@ -20,6 +20,17 @@
 # include "printf.h"
 # include "libft.h"
 
+# define OPTIONS "lRart"
+
+typedef struct		s_options
+{
+	unsigned int	l:1;
+	unsigned int	big_r:1;
+	unsigned int	a:1;
+	unsigned int	r:1;
+	unsigned int	t:1;
+}					t_opts;
+
 typedef struct dirent t_dent;
 typedef struct stat t_stat;
 
