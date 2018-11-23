@@ -26,6 +26,27 @@ void	print_short(t_list *lst)
 		//ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
 }
 
+void	print_short_with_a(t_list *lst)
+{
+	t_stat	fstat;
+	char	*file_name;
+	int		mode;
+
+	file_name = ft_strrchr((char*)lst->content, '/') + 1;
+	stat((char*)lst->content, &fstat);
+	mode = fstat.st_mode;
+	ft_printf("%s\n", file_name);
+		//ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
+}
+
+void	printer(t_list *lst, char *options)
+{
+	if (ft_strchr(options, 'a'))
+		ft_lstiter(lst, print_short_with_a);
+	else
+		ft_lstiter(lst, print_short);
+}
+
 void	error(const char *msg)
 {
 	if (errno == EACCES)
@@ -105,7 +126,29 @@ char	*parse_options(char **args, int *arg_start)
 	return (options);
 }
 
-t_list	*get_directories(t_list *entries)
+int		is_dir_due(t_list *entry, char *options)
+{
+	char	*dirname;
+
+	dirname = ft_strrchr((char*)entry->content, '/') + 1;
+	if (ft_strchr(options, 'a'))
+	{
+		if (ft_strequ(dirname, ".") || ft_strequ(dirname, ".."))
+			return (0);
+		else
+			return (1);
+	}
+	else
+	{
+		if (*dirname != '.')
+			return (1);
+		else
+			return (0);
+	}
+	return (0);
+}
+
+t_list	*get_directories(t_list *entries, char *options)
 {
 	t_list	*dirs;
 	t_stat	fstat;
@@ -117,7 +160,7 @@ t_list	*get_directories(t_list *entries)
 	{
 		lstat((char*)entries->content, &fstat);
 		if ((fstat.st_mode & S_IFDIR) &&
-			(*(ft_strrchr((char*)entries->content, '/') + 1) != '.'))
+			is_dir_due(entries, options))
 		{
 			if (first_dir)
 			{
@@ -144,11 +187,11 @@ void	print_dir_entries(char *dirname, char *options)
 	if ((entries = extract_dir_entries(dirname)))
 	{
 		sort_list_ascii(entries);
-		ft_lstiter(entries, print_short);
+		printer(entries, options);
 	}
 	if (ft_strchr(options, 'R'))
 	{
-		dirs = get_directories(entries);
+		dirs = get_directories(entries, options);
 		sort_list_ascii(dirs);
 		while (dirs)
 		{
