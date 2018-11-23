@@ -20,7 +20,7 @@
 # include "printf.h"
 # include "libft.h"
 
-# define OPTIONS "lRart"
+# define OPTIONS "lRart1"
 
 typedef struct		s_options
 {

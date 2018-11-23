@@ -1,5 +1,5 @@
-/* ************************************************************************** */
 /*                                                                            */
+/* ************************************************************************** */
 /*                                                        :::      ::::::::   */
 /*   ft_ls.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
@@ -12,7 +12,7 @@
 
 #include "ls.h"
 
-void	print_no_options(t_list *lst)
+void	print_short(t_list *lst)
 {
 	t_stat	fstat;
 	char	*file_name;
@@ -22,7 +22,8 @@ void	print_no_options(t_list *lst)
 	stat((char*)lst->content, &fstat);
 	mode = fstat.st_mode;
 	if (*file_name != '.')
-		ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
+		ft_printf("%s\n", file_name);
+		//ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
 }
 
 void	error(const char *msg)
@@ -104,23 +105,73 @@ char	*parse_options(char **args, int *arg_start)
 	return (options);
 }
 
+t_list	*get_directories(t_list *entries)
+{
+	t_list	*dirs;
+	t_stat	fstat;
+	int		first_dir;
+
+	first_dir = 1;
+	dirs = NULL;
+	while (entries)
+	{
+		lstat((char*)entries->content, &fstat);
+		if ((fstat.st_mode & S_IFDIR) &&
+			(*(ft_strrchr((char*)entries->content, '/') + 1) != '.'))
+		{
+			if (first_dir)
+			{
+				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
+				first_dir = 0;
+			}
+			else
+				lst_add_end(dirs, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
+		}
+		entries = entries->next;
+	}
+	return (dirs);
+}
+
+void	print_dir_entries(char *dirname, char *options)
+{
+	t_list		*entries;
+	t_list		*dirs;
+	static int	first_call = 1;
+
+	if (!first_call)
+		ft_printf("\n%s:\n", dirname);
+	first_call = 0;
+	if ((entries = extract_dir_entries(dirname)))
+	{
+		sort_list_ascii(entries);
+		ft_lstiter(entries, print_short);
+	}
+	if (ft_strchr(options, 'R'))
+	{
+		dirs = get_directories(entries);
+		sort_list_ascii(dirs);
+		while (dirs)
+		{
+			print_dir_entries((char*)dirs->content, options);
+			dirs = dirs->next;
+		}
+	}
+}
+
 int		main(int argc, char **args)
 {
-	t_list	*list;
 	char	*options;
 	int		arg_start;
 
 	options = parse_options(args, &arg_start);
 	if (arg_start == -1)
 	{
-		list = extract_dir_entries(".");
-		ft_lstiter(list, print_no_options);
+		print_dir_entries(".", options);
 	}
 	else
 		while (argc > arg_start)
 		{
-			list = extract_dir_entries(args[arg_start]);
-			ft_lstiter(list, print_no_options);
+			print_dir_entries(args[arg_start], options);
 			arg_start++;
 		}
 	//system("leaks a.out");
