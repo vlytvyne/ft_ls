@@ -175,6 +175,32 @@ t_list	*get_directories(t_list *entries, char *options)
 	return (dirs);
 }
 
+int		cmp_time(t_list *first, t_list *second)
+{
+	t_stat	fstat_first;
+	t_stat	fstat_second;
+	time_t	first_time;
+	time_t	second_time;
+
+	lstat((char*)first->content, &fstat_first);
+	lstat((char*)second->content, &fstat_second);
+	first_time = (fstat_first.st_mtimespec).tv_sec;
+	second_time = (fstat_second.st_mtimespec).tv_sec;
+	return (second_time - first_time);
+}
+
+void	sorter(t_list **list, char *options)
+{
+	t_stat	fstat;
+
+	if (ft_strchr(options, 't'))
+		sort_list(*list, cmp_time);
+	else
+		sort_list_ascii(*list);
+	if (ft_strchr(options, 'r'))
+		reverse_list(list);
+}
+
 void	print_dir_entries(char *dirname, char *options)
 {
 	t_list		*entries;
@@ -186,13 +212,13 @@ void	print_dir_entries(char *dirname, char *options)
 	first_call = 0;
 	if ((entries = extract_dir_entries(dirname)))
 	{
-		sort_list_ascii(entries);
+		sorter(&entries, options);
 		printer(entries, options);
 	}
 	if (ft_strchr(options, 'R'))
 	{
 		dirs = get_directories(entries, options);
-		sort_list_ascii(dirs);
+		sorter(&entries, options);
 		while (dirs)
 		{
 			print_dir_entries((char*)dirs->content, options);
@@ -217,5 +243,5 @@ int		main(int argc, char **args)
 			print_dir_entries(args[arg_start], options);
 			arg_start++;
 		}
-	//system("leaks a.out");
+	//system("leaks ft_ls");
 }
