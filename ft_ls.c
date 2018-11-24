@@ -18,7 +18,7 @@ void	print_short(t_list *lst)
 	char	*file_name;
 	int		mode;
 
-	file_name = ft_strrchr((char*)lst->content, '/') + 1;
+	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
 	stat((char*)lst->content, &fstat);
 	mode = fstat.st_mode;
 	if (*file_name != '.')
@@ -32,7 +32,7 @@ void	print_short_with_a(t_list *lst)
 	char	*file_name;
 	int		mode;
 
-	file_name = ft_strrchr((char*)lst->content, '/') + 1;
+	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
 	stat((char*)lst->content, &fstat);
 	mode = fstat.st_mode;
 	ft_printf("%s\n", file_name);
@@ -60,31 +60,28 @@ void	error(const char *msg)
 	}
 }
 
-t_list	*extract_dir_entries(const char *dir_name)
+t_list	*extract_dir_entries(const char *dir_name, int is_custom)
 {
 	DIR		*dir;
 	t_dent	*dent;
 	t_list	*head;
-	t_list	*new;
 	char	*file_name;
 
+	head = NULL;
 	if (!(dir = opendir(dir_name)))
 	{
-		error(dir_name);
+		if (!is_custom)
+			error(dir_name);
 		return (NULL);
-	}
-	if ((dent = readdir(dir)))
-	{
-		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
-		head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
-		free(file_name);
 	}
 	while ((dent = readdir(dir)))
 	{
 		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
-		new = ft_lstnew(file_name, ft_strlen(file_name) + 1);
+		if (head == NULL)
+			head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
+		else
+			lst_add_end(head, ft_lstnew(file_name, ft_strlen(file_name) + 1));
 		free(file_name);
-		lst_add_end(head, new);
 	}
 	if (closedir(dir))
 		error("Error closing directory.");
@@ -130,7 +127,7 @@ int		is_dir_due(t_list *entry, char *options)
 {
 	char	*dirname;
 
-	dirname = ft_strrchr((char*)entry->content, '/') + 1;
+	dirname = ft_strchr((char*)entry->content, '/') ? ft_strrchr((char*)entry->content, '/') + 1 : (char*)entry->content;
 	if (ft_strchr(options, 'a'))
 	{
 		if (ft_strequ(dirname, ".") || ft_strequ(dirname, ".."))
@@ -139,12 +136,7 @@ int		is_dir_due(t_list *entry, char *options)
 			return (1);
 	}
 	else
-	{
-		if (*dirname != '.')
-			return (1);
-		else
-			return (0);
-	}
+		return (*dirname != '.');
 	return (0);
 }
 
@@ -152,21 +144,36 @@ t_list	*get_directories(t_list *entries, char *options)
 {
 	t_list	*dirs;
 	t_stat	fstat;
-	int		first_dir;
 
-	first_dir = 1;
 	dirs = NULL;
 	while (entries)
 	{
 		lstat((char*)entries->content, &fstat);
-		if ((fstat.st_mode & S_IFDIR) &&
-			is_dir_due(entries, options))
+		if (fstat.st_mode & S_IFDIR && is_dir_due(entries, options))
 		{
-			if (first_dir)
-			{
+			if (dirs == NULL)
 				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
-				first_dir = 0;
-			}
+			else
+				lst_add_end(dirs, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
+		}
+		entries = entries->next;
+	}
+	return (dirs);
+}
+
+t_list	*get_directories_custom(t_list *entries)
+{
+	t_list	*dirs;
+	t_stat	fstat;
+
+	dirs = NULL;
+	while (entries)
+	{
+		stat((char*)entries->content, &fstat);
+		if (fstat.st_mode & S_IFDIR)
+		{
+			if (dirs == NULL)
+				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
 			else
 				lst_add_end(dirs, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
 		}
@@ -201,7 +208,7 @@ void	sorter(t_list **list, char *options)
 		reverse_list(list);
 }
 
-void	print_dir_entries(char *dirname, char *options)
+void	print_dir_entries(char *dirname, char *options, int is_custom)
 {
 	t_list		*entries;
 	t_list		*dirs;
@@ -210,7 +217,7 @@ void	print_dir_entries(char *dirname, char *options)
 	if (!first_call)
 		ft_printf("\n%s:\n", dirname);
 	first_call = 0;
-	if ((entries = extract_dir_entries(dirname)))
+	if ((entries = extract_dir_entries(dirname, is_custom)))
 	{
 		sorter(&entries, options);
 		printer(entries, options);
@@ -218,12 +225,63 @@ void	print_dir_entries(char *dirname, char *options)
 	if (ft_strchr(options, 'R'))
 	{
 		dirs = get_directories(entries, options);
-		sorter(&entries, options);
 		while (dirs)
 		{
-			print_dir_entries((char*)dirs->content, options);
+			print_dir_entries((char*)dirs->content, options, is_custom);
 			dirs = dirs->next;
 		}
+	}
+}
+
+int		print_files(t_list *entries, char *options)
+{
+	t_list	*files;
+	t_stat	fstat;
+	int		ret;
+
+	ret = 0;
+	files = NULL;
+	while (entries)
+	{
+		if (stat((char*)entries->content, &fstat) == -1)
+		{
+			error((char*)entries->content);
+			ret = 1;
+		}
+		else
+			if (!(fstat.st_mode & S_IFDIR))
+			{
+				if (files == NULL)
+					files = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
+				else
+					lst_add_end(files, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
+			}
+		entries = entries->next;
+	}
+	sorter(&files, options);
+	ft_lstiter(files, print_short_with_a);
+	if (files != NULL)
+		ret = 1;
+	return (ret);
+}
+
+void	print_custom_input(t_list *entries, char *options)
+{
+	t_list *dirs;
+	int files_were_printed;
+
+	files_were_printed = print_files(entries, options);
+
+	dirs = get_directories_custom(entries);
+	sorter(&dirs, options);
+	if (files_were_printed)
+		ft_printf("\n%s:\n", (char*)dirs->content);
+	else if (dirs && dirs->next)
+		ft_printf("%s:\n", (char*)dirs->content);
+	while (dirs)
+	{
+		print_dir_entries((char*)dirs->content, options, 1);
+		dirs = dirs->next;
 	}
 }
 
@@ -231,17 +289,25 @@ int		main(int argc, char **args)
 {
 	char	*options;
 	int		arg_start;
+	t_list	*entries;
 
 	options = parse_options(args, &arg_start);
+	entries = NULL;
 	if (arg_start == -1)
 	{
-		print_dir_entries(".", options);
+		print_dir_entries(".", options, 0);
 	}
 	else
+	{
 		while (argc > arg_start)
 		{
-			print_dir_entries(args[arg_start], options);
+			if (entries == NULL)
+				entries = ft_lstnew(args[arg_start], ft_strlen(args[arg_start]) + 1);
+			else
+				lst_add_end(entries, ft_lstnew(args[arg_start], ft_strlen(args[arg_start]) + 1));
 			arg_start++;
 		}
+		print_custom_input(entries, options);
+	}
 	//system("leaks ft_ls");
 }
