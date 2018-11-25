@@ -84,6 +84,27 @@ void	print_long(t_list *lst)
 			file_name);
 }
 
+void	print_long_with_a(t_list *lst)
+{
+	t_stat	fstat;
+	char	*file_name;
+	char	*mode_line;
+	char	*time_str;
+
+	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	lstat((char*)lst->content, &fstat);
+	mode_line = form_mode_line(lst, fstat.st_mode);
+	time_str = form_time_line(fstat);
+	ft_printf("%-11s %3d %8s %-15s %5d %s %s\n", 
+		mode_line, 
+		fstat.st_nlink, 
+		getpwuid(fstat.st_uid)->pw_name, 
+		getgrgid(fstat.st_gid)->gr_name, 
+		fstat.st_size, 
+		time_str,
+		file_name);
+}
+
 ////////////////////////////////////////
 
 void	print_short(t_list *lst)
@@ -114,7 +135,9 @@ void	print_short_with_a(t_list *lst)
 
 void	printer(t_list *lst, char *options)
 {
-	if (ft_strchr(options, 'a'))
+	if (ft_strchr(options, 'a') && ft_strchr(options, 'l'))
+		ft_lstiter(lst, print_long_with_a);
+	else if (ft_strchr(options, 'a'))
 		ft_lstiter(lst, print_short_with_a);
 	else if (ft_strchr(options, 'l'))
 		ft_lstiter(lst, print_long);
@@ -271,6 +294,21 @@ void	sorter(t_list **list, char *options)
 		reverse_list(list);
 }
 
+void	print_total(t_list *entries)
+{
+	int		total;
+	t_stat	fstat;
+
+	total = 0;
+	while (entries)
+	{
+		if (stat((char*)entries->content, &fstat) != -1)
+			total += fstat.st_blocks;
+		entries = entries->next;
+	}
+	ft_printf("total %d\n", total);
+}
+
 void	print_dir_entries(char *dirname, char *options)
 {
 	t_list		*entries;
@@ -282,6 +320,8 @@ void	print_dir_entries(char *dirname, char *options)
 	first_call = 0;
 	if ((entries = extract_dir_entries(dirname)))
 	{
+		if (ft_strchr(options, 'l'))
+			print_total(entries);
 		sorter(&entries, options);
 		printer(entries, options);
 	}
@@ -344,30 +384,41 @@ t_list	*get_directories_custom(t_list *entries)
 	return (dirs);
 }
 
-void	print_files(t_list *lst)
+t_list	*get_files(t_list *lst)
 {
 	t_stat	fstat;
 	t_stat	fstat1;
-	char	*file_name;
-	int		mode;
+	t_list	*files;
 
-	file_name = (char*)lst->content;
-	if (lstat((char*)lst->content, &fstat) != -1)
+	files = NULL;
+	while (lst)
 	{
-		stat((char*)lst->content, &fstat1);
-		if (!(fstat.st_mode & S_IFDIR) && !(fstat1.st_mode & S_IFDIR))
-			ft_printf("%s\n", file_name);		
+		if (lstat((char*)lst->content, &fstat) != -1)
+		{
+			stat((char*)lst->content, &fstat1);
+			if (!(fstat.st_mode & S_IFDIR) && !(fstat1.st_mode & S_IFDIR))
+			{
+				if (files == NULL)
+					files = ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1);
+				else
+					lst_add_end(files, ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1));
+			}
+		}
+		lst = lst->next;
 	}
+	return (files);
 }
 
 void	print_custom_input(t_list *entries, char *options)
 {
-	t_list	*valid_files;
+	t_list	*valid_entries;
 	t_list	*dirs;
+	t_list	*files;
 
-	valid_files = check_invalid_input(entries);
-	ft_lstiter(valid_files, print_files);
-	dirs = get_directories_custom(valid_files);
+	valid_entries = check_invalid_input(entries);
+	files = get_files(valid_entries);
+	printer(files, options);
+	dirs = get_directories_custom(valid_entries);
 	if (entries->next)
 		ft_printf("\n%s:\n", (char*)dirs->content);
 	while (dirs)
