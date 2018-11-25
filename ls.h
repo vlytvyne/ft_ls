@@ -21,6 +21,7 @@
 # include <pwd.h>
 # include <uuid/uuid.h>
 # include <grp.h>
+# include <unistd.h>
 # include "printf.h"
 # include "libft.h"
 
