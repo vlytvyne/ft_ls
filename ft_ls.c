@@ -14,6 +14,11 @@
 
 ////////////////////////////////////////
 
+char	*get_file_name(t_list *lst)
+{
+	return (ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content);
+}
+
 char	*form_mode_line(t_list *lst, int mode)
 {
 	char	*str_mode;
@@ -44,7 +49,7 @@ char	*form_mode_line(t_list *lst, int mode)
 	str_mode[7] = mode & 0004 ? 'r' : '-';
 	str_mode[8] = mode & 0002 ? 'w' : '-';
 	str_mode[9] = mode & 0001 ? 'x' : '-';
-	if (listxattr((char*)lst->content, NULL, 0, XATTR_NOFOLLOW))
+	if (listxattr((char*)lst->content, NULL, 0, XATTR_NOFOLLOW)
 		str_mode[10] = '@';
 	return (str_mode);
 }
@@ -69,7 +74,7 @@ void	print_long(t_list *lst)
 	char	*mode_line;
 	char	*time_str;
 
-	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
 	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
@@ -91,7 +96,7 @@ void	print_long_with_a(t_list *lst)
 	char	*mode_line;
 	char	*time_str;
 
-	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
 	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
@@ -113,7 +118,7 @@ void	print_short(t_list *lst)
 	char	*file_name;
 	int		mode;
 
-	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	file_name = get_file_name(lst);
 	stat((char*)lst->content, &fstat);
 	mode = fstat.st_mode;
 	if (*file_name != '.')
@@ -126,7 +131,7 @@ void	print_short_with_a(t_list *lst)
 	char	*file_name;
 	int		mode;
 
-	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	file_name = get_file_name(lst);
 	stat((char*)lst->content, &fstat);
 	mode = fstat.st_mode;
 	ft_printf("%s\n", file_name);
@@ -294,16 +299,20 @@ void	sorter(t_list **list, char *options)
 		reverse_list(list);
 }
 
-void	print_total(t_list *entries)
+void	print_total(t_list *entries, char *options)
 {
 	int		total;
 	t_stat	fstat;
+	int		count_hiden;
 
 	total = 0;
+	count_hiden = ft_strchr(options, 'a') ? 1 : 0;
 	while (entries)
 	{
-		if (stat((char*)entries->content, &fstat) != -1)
-			total += fstat.st_blocks;
+		if (*get_file_name(entries) != '.' ||
+			count_hiden)
+			if (lstat((char*)entries->content, &fstat) != -1)
+				total += fstat.st_blocks;
 		entries = entries->next;
 	}
 	ft_printf("total %d\n", total);
@@ -321,7 +330,7 @@ void	print_dir_entries(char *dirname, char *options)
 	if ((entries = extract_dir_entries(dirname)))
 	{
 		if (ft_strchr(options, 'l'))
-			print_total(entries);
+			print_total(entries, options);
 		sorter(&entries, options);
 		printer(entries, options);
 	}
