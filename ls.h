@@ -17,10 +17,15 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <time.h>
+# include <sys/xattr.h>
+# include <pwd.h>
+# include <uuid/uuid.h>
+# include <grp.h>
 # include "printf.h"
 # include "libft.h"
 
 # define OPTIONS "lRart1"
+# define HALF_YEAR 2592000
 
 typedef struct		s_options
 {

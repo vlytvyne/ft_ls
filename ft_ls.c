@@ -12,6 +12,80 @@
 
 #include "ls.h"
 
+////////////////////////////////////////
+
+char	*form_mode_line(t_list *lst, int mode)
+{
+	char	*str_mode;
+	int		mode_mask;
+
+	str_mode = ft_strnew(11);
+	mode_mask = mode & S_IFMT;
+	if (mode_mask == S_IFDIR)
+		str_mode[0] = 'd';
+	else if (mode_mask == S_IFLNK)
+		str_mode[0] = 'l';
+	else if (mode_mask == S_IFCHR)
+		str_mode[0] = 'c';
+	else if (mode_mask == S_IFBLK)
+		str_mode[0] = 'b';
+	else if (mode_mask == S_IFIFO)
+		str_mode[0] = 'p';
+	else if (mode_mask == S_IFSOCK)
+		str_mode[0] = 's';
+	else
+		str_mode[0] = '-';
+	str_mode[1] = mode & 0400 ? 'r' : '-';
+	str_mode[2] = mode & 0200 ? 'w' : '-';
+	str_mode[3] = mode & 0100 ? 'x' : '-';
+	str_mode[4] = mode & 0040 ? 'r' : '-';
+	str_mode[5] = mode & 0020 ? 'w' : '-';
+	str_mode[6] = mode & 0010 ? 'x' : '-';
+	str_mode[7] = mode & 0004 ? 'r' : '-';
+	str_mode[8] = mode & 0002 ? 'w' : '-';
+	str_mode[9] = mode & 0001 ? 'x' : '-';
+	if (listxattr((char*)lst->content, NULL, 0, XATTR_NOFOLLOW))
+		str_mode[10] = '@';
+	return (str_mode);
+}
+
+char	*form_time_line(t_stat fstat)
+{
+	char	*time_str;
+	time_t	time_last_mod;
+
+	time_last_mod = (fstat.st_mtimespec).tv_sec;
+	time_str = ctime(&time_last_mod);
+	if (time_last_mod + HALF_YEAR < time(NULL))
+		return (ft_strjoin(ft_strsub(time_str, 4, 7), ft_strsub(time_str, 19, 5)));
+	else
+		return (ft_strsub(time_str, 4, 12));
+}
+
+void	print_long(t_list *lst)
+{
+	t_stat	fstat;
+	char	*file_name;
+	char	*mode_line;
+	char	*time_str;
+
+	file_name = ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content;
+	lstat((char*)lst->content, &fstat);
+	mode_line = form_mode_line(lst, fstat.st_mode);
+	time_str = form_time_line(fstat);
+	if (*file_name != '.')
+		ft_printf("%-11s %3d %8s %-15s %5d %s %s\n", 
+			mode_line, 
+			fstat.st_nlink, 
+			getpwuid(fstat.st_uid)->pw_name, 
+			getgrgid(fstat.st_gid)->gr_name, 
+			fstat.st_size, 
+			time_str,
+			file_name);
+}
+
+////////////////////////////////////////
+
 void	print_short(t_list *lst)
 {
 	t_stat	fstat;
@@ -23,7 +97,6 @@ void	print_short(t_list *lst)
 	mode = fstat.st_mode;
 	if (*file_name != '.')
 		ft_printf("%s\n", file_name);
-		//ft_printf("%s -- %.7o\n", file_name, fstat.st_mode);
 }
 
 void	print_short_with_a(t_list *lst)
@@ -43,6 +116,8 @@ void	printer(t_list *lst, char *options)
 {
 	if (ft_strchr(options, 'a'))
 		ft_lstiter(lst, print_short_with_a);
+	else if (ft_strchr(options, 'l'))
+		ft_lstiter(lst, print_long);
 	else
 		ft_lstiter(lst, print_short);
 }
