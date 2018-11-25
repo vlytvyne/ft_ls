@@ -12,5 +12,8 @@
 
 NAME = ft_ls
 
+SRC = ft_ls.c formers.c custom_input_handler.c \
+printer.c utils.c get_dirs.c
+
 all:
-	gcc ft_ls.c lib libftprintf.a -o $(NAME)
+	gcc $(SRC) lib libftprintf.a -o $(NAME)
