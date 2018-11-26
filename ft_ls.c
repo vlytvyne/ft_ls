@@ -28,11 +28,7 @@ static t_list	*extract_dir_entries(const char *dir_name)
 	while ((dent = readdir(dir)))
 	{
 		if (head == NULL)
-		{
-			file_name = ultimate_join(3, dir_name, "/", dent->d_name);
-			head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
-			free(file_name);
-		}
+			head = norm_get_head(dent, dir_name);
 		else
 		{
 			file_name = ultimate_join(3, dir_name, "/", dent->d_name);
@@ -64,11 +60,9 @@ static void		print_total(t_list *entries, char *options)
 	ft_printf("total %d\n", total);
 }
 
-void		print_dir_entries(char *dirname, char *options)
+void			print_dir_entries(char *dirname, char *options)
 {
 	t_list		*entries;
-	t_list		*dirs;
-	t_list		*to_free;
 	static int	first_call = 1;
 
 	if (!first_call)
@@ -82,16 +76,7 @@ void		print_dir_entries(char *dirname, char *options)
 		printer(entries, options);
 	}
 	if (ft_strchr(options, 'R'))
-	{
-		dirs = get_directories(entries, options);
-		to_free = dirs;
-		while (dirs)
-		{
-			print_dir_entries((char*)dirs->content, options);
-			dirs = dirs->next;
-		}
-		ft_lstdel(&to_free, del);
-	}
+		norm_recur_print(entries, options);
 	ft_lstdel(&entries, del);
 }
 
@@ -102,18 +87,13 @@ static char		*parse_options(char **args, int *arg_start)
 	int		j;
 	int		k;
 
-	options = ft_strnew(ft_strlen(OPTIONS));
-	i = 1;
-	k = 0;
-	while (args[i])
+	norm_init(&i, &k, &options);
+	while (args[++i])
 	{
-		j = 1;
+		j = 0;
 		if (args[i][0] != '-')
-		{
-			*arg_start = i;
-			return (options);
-		}
-		while (args[i][j])
+			return (norm_not_minus(options, arg_start, i));
+		while (args[i][++j])
 		{
 			if (ft_strchr(OPTIONS, args[i][j]))
 			{
@@ -121,10 +101,9 @@ static char		*parse_options(char **args, int *arg_start)
 					options[k++] = args[i][j];
 			}
 			else
-				error(ultimate_join(5, "ft_ls: illegal option -- ", ft_strsub(args[i], j, 1), "\nusage: ls [-", OPTIONS, "] [file ...]\n"));
-			j++;
+				error(ultimate_join(5, "ft_ls: illegal option -- ",
+		ft_strsub(args[i], j, 1), "\nusage: ls [-", OPTIONS, "] [file ...]\n"));
 		}
-		i++;
 	}
 	*arg_start = -1;
 	return (options);
@@ -144,14 +123,15 @@ int				main(int argc, char **args)
 		while (argc > arg_start)
 		{
 			if (entries == NULL)
-				entries = ft_lstnew(args[arg_start], ft_strlen(args[arg_start]) + 1);
+				entries = ft_lstnew(args[arg_start],
+					ft_strlen(args[arg_start]) + 1);
 			else
-				lst_add_end(entries, ft_lstnew(args[arg_start], ft_strlen(args[arg_start]) + 1));
+				lst_add_end(entries, ft_lstnew(args[arg_start],
+					ft_strlen(args[arg_start]) + 1));
 			arg_start++;
 		}
 		sorter(&entries, options);
 		print_custom_input(entries, options);
 	}
 	ft_lstdel(&entries, del);
-	system("leaks ft_ls");
 }

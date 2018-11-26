@@ -28,8 +28,8 @@
 # define OPTIONS "lRart1"
 # define HALF_YEAR 2592000
 
-typedef struct dirent t_dent;
-typedef struct stat t_stat;
+typedef struct dirent	t_dent;
+typedef struct stat		t_stat;
 
 void		sorter(t_list **list, char *options);
 void		error(const char *msg);
@@ -41,5 +41,12 @@ void		print_custom_input(t_list *entries, char *options);
 t_list		*get_directories(t_list *entries, char *options);
 void		print_dir_entries(char *dirname, char *options);
 void		del(void *content, size_t size);
+
+void		norm_psize(char *mode_line, t_stat fstat);
+void		norm_free_strs(char **mode_line, char **time_str, char **link_line);
+t_list		*norm_get_head(t_dent *dent, const char *dir_name);
+void		norm_init(int *i, int *k, char **options);
+char		*norm_not_minus(char *options, int *arg_start, int i);
+void		norm_recur_print(t_list *entries, char *options);
 
 #endif

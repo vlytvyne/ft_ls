@@ -38,10 +38,11 @@ void		sorter(t_list **list, char *options)
 		reverse_list(list);
 }
 
-void	error(const char *msg)
+void		error(const char *msg)
 {
 	if (errno == EACCES)
-		ft_printf("ft_ls: %s: Permission denied\n", ft_strchr(msg, '/') ? ft_strrchr(msg, '/') + 1 : msg);
+		ft_printf("ft_ls: %s: Permission denied\n",
+			ft_strchr(msg, '/') ? ft_strrchr(msg, '/') + 1 : msg);
 	else if (errno == ENOENT)
 		ft_printf("ft_ls: %s: No such file or directory\n", msg);
 	else
@@ -51,12 +52,13 @@ void	error(const char *msg)
 	}
 }
 
-char	*get_file_name(t_list *lst)
+char		*get_file_name(t_list *lst)
 {
-	return (ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content);
+	return (ft_strchr((char*)lst->content, '/') ?
+		ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content);
 }
 
-void	del(void *content, size_t size)
+void		del(void *content, size_t size)
 {
 	(void)size;
 	free(content);

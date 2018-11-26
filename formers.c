@@ -12,27 +12,32 @@
 
 #include "ls.h"
 
-char	*form_mode_line(t_list *lst, int mode)
+static void	set_first_char(char *str, int mode_mask)
+{
+	if (mode_mask == S_IFDIR)
+		str[0] = 'd';
+	else if (mode_mask == S_IFLNK)
+		str[0] = 'l';
+	else if (mode_mask == S_IFCHR)
+		str[0] = 'c';
+	else if (mode_mask == S_IFBLK)
+		str[0] = 'b';
+	else if (mode_mask == S_IFIFO)
+		str[0] = 'p';
+	else if (mode_mask == S_IFSOCK)
+		str[0] = 's';
+	else
+		str[0] = '-';
+}
+
+char		*form_mode_line(t_list *lst, int mode)
 {
 	char	*str_mode;
 	int		mode_mask;
 
 	str_mode = ft_strnew(11);
 	mode_mask = mode & S_IFMT;
-	if (mode_mask == S_IFDIR)
-		str_mode[0] = 'd';
-	else if (mode_mask == S_IFLNK)
-		str_mode[0] = 'l';
-	else if (mode_mask == S_IFCHR)
-		str_mode[0] = 'c';
-	else if (mode_mask == S_IFBLK)
-		str_mode[0] = 'b';
-	else if (mode_mask == S_IFIFO)
-		str_mode[0] = 'p';
-	else if (mode_mask == S_IFSOCK)
-		str_mode[0] = 's';
-	else
-		str_mode[0] = '-';
+	set_first_char(str_mode, mode_mask);
 	str_mode[1] = mode & 0400 ? 'r' : '-';
 	str_mode[2] = mode & 0200 ? 'w' : '-';
 	str_mode[3] = mode & 0100 ? 'x' : '-';
@@ -42,12 +47,10 @@ char	*form_mode_line(t_list *lst, int mode)
 	str_mode[7] = mode & 0004 ? 'r' : '-';
 	str_mode[8] = mode & 0002 ? 'w' : '-';
 	str_mode[9] = mode & 0001 ? 'x' : '-';
-	// if (listxattr((char*)lst->content, NULL, 0, XATTR_NOFOLLOW))
-	// 	str_mode[10] = '@';
 	return (str_mode);
 }
 
-char	*form_time_line(t_stat fstat)
+char		*form_time_line(t_stat fstat)
 {
 	char	*time_str;
 	time_t	time_last_mod;

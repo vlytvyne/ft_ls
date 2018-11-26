@@ -24,13 +24,15 @@ static t_list	*check_invalid_input(t_list *entries)
 		{
 			if (errno == ENOENT)
 				error((char*)entries->content);
-		}	
+		}
 		else
 		{
 			if (valid_entries == NULL)
-				valid_entries = ft_lstnew((char*)entries->content, ft_strlen((char*)entries->content) + 1);
+				valid_entries = ft_lstnew((char*)entries->content,
+					ft_strlen((char*)entries->content) + 1);
 			else
-				lst_add_end(valid_entries, ft_lstnew((char*)entries->content, ft_strlen((char*)entries->content) + 1));
+				lst_add_end(valid_entries, ft_lstnew((char*)entries->content,
+					ft_strlen((char*)entries->content) + 1));
 		}
 		entries = entries->next;
 	}
@@ -51,9 +53,11 @@ static t_list	*get_directories_custom(t_list *entries)
 		if (mode == S_IFDIR)
 		{
 			if (dirs == NULL)
-				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
+				dirs = ft_lstnew(entries->content,
+					ft_strlen((char*)entries->content) + 1);
 			else
-				lst_add_end(dirs, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
+				lst_add_end(dirs, ft_lstnew(entries->content,
+					ft_strlen((char*)entries->content) + 1));
 		}
 		entries = entries->next;
 	}
@@ -65,8 +69,6 @@ static t_list	*get_files(t_list *lst)
 	t_stat	fstat;
 	t_stat	fstat1;
 	t_list	*files;
-	int		mode;
-	int		mode1;
 
 	files = NULL;
 	while (lst)
@@ -74,14 +76,15 @@ static t_list	*get_files(t_list *lst)
 		if (lstat((char*)lst->content, &fstat) != -1)
 		{
 			stat((char*)lst->content, &fstat);
-			mode = fstat.st_mode & S_IFMT;
-			mode1 = fstat1.st_mode & S_IFMT;
-			if ((mode != S_IFDIR) && (mode1 != S_IFDIR))
+			if (((fstat.st_mode & S_IFMT) != S_IFDIR) &&
+				((fstat1.st_mode & S_IFMT) != S_IFDIR))
 			{
 				if (files == NULL)
-					files = ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1);
+					files = ft_lstnew((char*)lst->content,
+						ft_strlen((char*)lst->content) + 1);
 				else
-					lst_add_end(files, ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1));
+					lst_add_end(files, ft_lstnew((char*)lst->content,
+						ft_strlen((char*)lst->content) + 1));
 			}
 		}
 		lst = lst->next;

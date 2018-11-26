@@ -49,9 +49,11 @@ t_list		*get_directories(t_list *entries, char *options)
 			is_dir_due(entries, options))
 		{
 			if (dirs == NULL)
-				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
+				dirs = ft_lstnew(entries->content,
+					ft_strlen((char*)entries->content) + 1);
 			else
-				lst_add_end(dirs, ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1));
+				lst_add_end(dirs, ft_lstnew(entries->content,
+					ft_strlen((char*)entries->content) + 1));
 		}
 		entries = entries->next;
 	}
