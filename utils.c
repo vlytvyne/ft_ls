@@ -55,3 +55,9 @@ char	*get_file_name(t_list *lst)
 {
 	return (ft_strchr((char*)lst->content, '/') ? ft_strrchr((char*)lst->content, '/') + 1 : (char*)lst->content);
 }
+
+void	del(void *content, size_t size)
+{
+	(void)size;
+	free(content);
+}

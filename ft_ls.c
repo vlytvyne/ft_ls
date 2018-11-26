@@ -81,7 +81,6 @@ void		print_dir_entries(char *dirname, char *options)
 	if (ft_strchr(options, 'R'))
 	{
 		dirs = get_directories(entries, options);
-		sorter(&entries, options);
 		while (dirs)
 		{
 			print_dir_entries((char*)dirs->content, options);

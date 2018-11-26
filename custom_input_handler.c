@@ -41,12 +41,14 @@ static t_list	*get_directories_custom(t_list *entries)
 {
 	t_list	*dirs;
 	t_stat	fstat;
+	int		mode;
 
 	dirs = NULL;
 	while (entries)
 	{
 		stat((char*)entries->content, &fstat);
-		if (fstat.st_mode & S_IFDIR)
+		mode = fstat.st_mode & S_IFMT;
+		if (mode == S_IFDIR)
 		{
 			if (dirs == NULL)
 				dirs = ft_lstnew(entries->content, ft_strlen((char*)entries->content) + 1);
@@ -61,16 +63,16 @@ static t_list	*get_directories_custom(t_list *entries)
 static t_list	*get_files(t_list *lst)
 {
 	t_stat	fstat;
-	t_stat	fstat1;
 	t_list	*files;
+	int		mode;
 
 	files = NULL;
 	while (lst)
 	{
-		if (lstat((char*)lst->content, &fstat) != -1)
+		if (stat((char*)lst->content, &fstat) != -1)
 		{
-			stat((char*)lst->content, &fstat1);
-			if (!(fstat.st_mode & S_IFDIR) && !(fstat1.st_mode & S_IFDIR))
+			mode = fstat.st_mode & S_IFMT;
+			if ((mode != S_IFDIR))
 			{
 				if (files == NULL)
 					files = ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1);
@@ -93,7 +95,7 @@ void			print_custom_input(t_list *entries, char *options)
 	files = get_files(valid_entries);
 	printer(files, options);
 	dirs = get_directories_custom(valid_entries);
-	if (entries->next)
+	if (entries->next && dirs)
 		ft_printf("\n%s:\n", (char*)dirs->content);
 	while (dirs)
 	{

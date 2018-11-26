@@ -40,5 +40,6 @@ char		*form_time_line(t_stat fstat);
 void		print_custom_input(t_list *entries, char *options);
 t_list		*get_directories(t_list *entries, char *options);
 void		print_dir_entries(char *dirname, char *options);
+void		del(void *content, size_t size);
 
 #endif

@@ -38,12 +38,14 @@ t_list		*get_directories(t_list *entries, char *options)
 {
 	t_list	*dirs;
 	t_stat	fstat;
+	int		mode;
 
 	dirs = NULL;
 	while (entries)
 	{
 		lstat((char*)entries->content, &fstat);
-		if ((fstat.st_mode & S_IFDIR) &&
+		mode = fstat.st_mode & S_IFMT;
+		if ((mode == S_IFDIR) &&
 			is_dir_due(entries, options))
 		{
 			if (dirs == NULL)
