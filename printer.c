@@ -29,11 +29,10 @@ static void	print_long(t_list *lst)
 		readlink((char*)lst->content, link_line, 1000);
 	if (*file_name != '.')
 	{
-		ft_printf("%-11s %3d %8s %-15s", 
-			mode_line, 
-			fstat.st_nlink, 
-			getpwuid(fstat.st_uid)->pw_name, 
-			getgrgid(fstat.st_gid)->gr_name);
+		ft_printf("%-11s ", mode_line);
+		ft_printf("%3d ", fstat.st_nlink);
+		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
+		ft_printf("%-15s ", getgrgid(fstat.st_gid)->gr_name);
 		if (ft_strchr(mode_line, 'b') || ft_strchr(mode_line, 'c'))
 			ft_printf("%4d,%4d", major(fstat.st_rdev), minor(fstat.st_rdev));
 		else
@@ -43,6 +42,9 @@ static void	print_long(t_list *lst)
 			ft_printf(" -> %s", link_line);
 		ft_printf("\n");
 	}
+	ft_strdel(&mode_line);
+	ft_strdel(&time_str);
+	ft_strdel(&link_line);
 }
 
 static void	print_long_with_a(t_list *lst)
@@ -60,11 +62,10 @@ static void	print_long_with_a(t_list *lst)
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
-		ft_printf("%-11s %3d %8s %-15s", 
-			mode_line, 
-			fstat.st_nlink, 
-			getpwuid(fstat.st_uid)->pw_name, 
-			getgrgid(fstat.st_gid)->gr_name);
+		ft_printf("%-11s ", mode_line);
+		ft_printf("%3d ", fstat.st_nlink);
+		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
+		ft_printf("%-15s ", getgrgid(fstat.st_gid)->gr_name);
 		if (ft_strchr(mode_line, 'b') || ft_strchr(mode_line, 'c'))
 			ft_printf("%4d,%4d", major(fstat.st_rdev), minor(fstat.st_rdev));
 		else
@@ -73,6 +74,9 @@ static void	print_long_with_a(t_list *lst)
 		if (*link_line != '\0')
 			ft_printf(" -> %s", link_line);
 		ft_printf("\n");
+		ft_strdel(&mode_line);
+		ft_strdel(&time_str);
+		ft_strdel(&link_line);
 }
 
 static void	print_short(t_list *lst)

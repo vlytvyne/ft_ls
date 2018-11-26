@@ -63,16 +63,20 @@ static t_list	*get_directories_custom(t_list *entries)
 static t_list	*get_files(t_list *lst)
 {
 	t_stat	fstat;
+	t_stat	fstat1;
 	t_list	*files;
 	int		mode;
+	int		mode1;
 
 	files = NULL;
 	while (lst)
 	{
-		if (stat((char*)lst->content, &fstat) != -1)
+		if (lstat((char*)lst->content, &fstat) != -1)
 		{
+			stat((char*)lst->content, &fstat);
 			mode = fstat.st_mode & S_IFMT;
-			if ((mode != S_IFDIR))
+			mode1 = fstat1.st_mode & S_IFMT;
+			if ((mode != S_IFDIR) && (mode1 != S_IFDIR))
 			{
 				if (files == NULL)
 					files = ft_lstnew((char*)lst->content, ft_strlen((char*)lst->content) + 1);
@@ -89,12 +93,16 @@ void			print_custom_input(t_list *entries, char *options)
 {
 	t_list	*valid_entries;
 	t_list	*dirs;
+	t_list	*to_free;
 	t_list	*files;
 
 	valid_entries = check_invalid_input(entries);
 	files = get_files(valid_entries);
 	printer(files, options);
+	ft_lstdel(&files, del);
 	dirs = get_directories_custom(valid_entries);
+	to_free = dirs;
+	ft_lstdel(&valid_entries, del);
 	if (entries->next && dirs)
 		ft_printf("\n%s:\n", (char*)dirs->content);
 	while (dirs)
@@ -102,4 +110,5 @@ void			print_custom_input(t_list *entries, char *options)
 		print_dir_entries((char*)dirs->content, options);
 		dirs = dirs->next;
 	}
+	ft_lstdel(&to_free, del);
 }

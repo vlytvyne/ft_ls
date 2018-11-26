@@ -1,5 +1,5 @@
-/*                                                                            */
 /* ************************************************************************** */
+/*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   ft_ls.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
@@ -17,26 +17,28 @@ static t_list	*extract_dir_entries(const char *dir_name)
 	DIR		*dir;
 	t_dent	*dent;
 	t_list	*head;
-	t_list	*new;
 	char	*file_name;
 
+	head = NULL;
 	if (!(dir = opendir(dir_name)))
 	{
 		error(dir_name);
 		return (NULL);
 	}
-	if ((dent = readdir(dir)))
-	{
-		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
-		head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
-		free(file_name);
-	}
 	while ((dent = readdir(dir)))
 	{
-		file_name = ultimate_join(3, dir_name, "/", dent->d_name);
-		new = ft_lstnew(file_name, ft_strlen(file_name) + 1);
-		free(file_name);
-		lst_add_end(head, new);
+		if (head == NULL)
+		{
+			file_name = ultimate_join(3, dir_name, "/", dent->d_name);
+			head = ft_lstnew(file_name, ft_strlen(file_name) + 1);
+			free(file_name);
+		}
+		else
+		{
+			file_name = ultimate_join(3, dir_name, "/", dent->d_name);
+			lst_add_end(head, ft_lstnew(file_name, ft_strlen(file_name) + 1));
+			free(file_name);
+		}
 	}
 	if (closedir(dir))
 		error("Error closing directory.");
@@ -66,6 +68,7 @@ void		print_dir_entries(char *dirname, char *options)
 {
 	t_list		*entries;
 	t_list		*dirs;
+	t_list		*to_free;
 	static int	first_call = 1;
 
 	if (!first_call)
@@ -81,12 +84,15 @@ void		print_dir_entries(char *dirname, char *options)
 	if (ft_strchr(options, 'R'))
 	{
 		dirs = get_directories(entries, options);
+		to_free = dirs;
 		while (dirs)
 		{
 			print_dir_entries((char*)dirs->content, options);
 			dirs = dirs->next;
 		}
+		ft_lstdel(&to_free, del);
 	}
+	ft_lstdel(&entries, del);
 }
 
 static char		*parse_options(char **args, int *arg_start)
@@ -146,5 +152,6 @@ int				main(int argc, char **args)
 		sorter(&entries, options);
 		print_custom_input(entries, options);
 	}
-	//system("leaks ft_ls");
+	ft_lstdel(&entries, del);
+	system("leaks ft_ls");
 }

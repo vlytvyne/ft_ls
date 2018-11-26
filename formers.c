@@ -51,11 +51,21 @@ char	*form_time_line(t_stat fstat)
 {
 	char	*time_str;
 	time_t	time_last_mod;
+	char	*start;
+	char	*end;
+	char	*result;
 
 	time_last_mod = (fstat.st_mtimespec).tv_sec;
 	time_str = ctime(&time_last_mod);
 	if (time_last_mod + HALF_YEAR < time(NULL))
-		return (ft_strjoin(ft_strsub(time_str, 4, 7), ft_strsub(time_str, 19, 5)));
+	{
+		start = ft_strsub(time_str, 4, 7);
+		end = ft_strsub(time_str, 19, 5);
+		result = ft_strjoin(start, end);
+		ft_strdel(&start);
+		ft_strdel(&end);
+		return (result);
+	}
 	else
 		return (ft_strsub(time_str, 4, 12));
 }
