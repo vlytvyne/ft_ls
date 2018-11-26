@@ -6,7 +6,7 @@
 #    By: vlytvyne <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/22 15:35:57 by vlytvyne          #+#    #+#              #
-#    Updated: 2018/11/26 21:14:43 by vlytvyne         ###   ########.fr        #
+#    Updated: 2018/11/26 21:22:12 by vlytvyne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,6 +24,7 @@ $(NAME):
 	gcc $(SRC) $(LIBS) -o $(NAME)
 
 clean:
+	@echo "clean rule do nothing"
 
 fclean: clean
 	rm -f $(NAME)
