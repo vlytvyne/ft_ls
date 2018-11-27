@@ -12,32 +12,6 @@
 
 #include "ls.h"
 
-static int	cmp_time(t_list *first, t_list *second)
-{
-	t_stat	fstat_first;
-	t_stat	fstat_second;
-	time_t	first_time;
-	time_t	second_time;
-
-	lstat((char*)first->content, &fstat_first);
-	lstat((char*)second->content, &fstat_second);
-	first_time = (fstat_first.st_mtimespec).tv_sec;
-	second_time = (fstat_second.st_mtimespec).tv_sec;
-	return (second_time - first_time);
-}
-
-void		sorter(t_list **list, char *options)
-{
-	t_stat	fstat;
-
-	if (ft_strchr(options, 't'))
-		sort_list(*list, cmp_time);
-	else
-		sort_list_ascii(*list);
-	if (ft_strchr(options, 'r'))
-		reverse_list(list);
-}
-
 void		error(const char *msg)
 {
 	if (errno == EACCES)

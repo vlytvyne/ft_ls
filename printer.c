@@ -29,7 +29,7 @@ static void	print_long(t_list *lst)
 		readlink((char*)lst->content, link_line, 1000);
 	if (*file_name != '.')
 	{
-		ft_printf("%-11s %3d", mode_line, fstat.st_nlink);
+		ft_printf("%-11s %3d ", mode_line, fstat.st_nlink);
 		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
 		ft_printf("%-15s ", getgrgid(fstat.st_gid)->gr_name);
 		norm_psize(mode_line, fstat);

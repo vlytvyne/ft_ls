@@ -25,7 +25,7 @@
 # include "printf.h"
 # include "libft.h"
 
-# define OPTIONS "lRart1"
+# define OPTIONS "lRart1S"
 # define HALF_YEAR 2592000
 
 typedef struct dirent	t_dent;

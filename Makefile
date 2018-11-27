@@ -6,14 +6,15 @@
 #    By: vlytvyne <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/22 15:35:57 by vlytvyne          #+#    #+#              #
-#    Updated: 2018/11/26 21:22:12 by vlytvyne         ###   ########.fr        #
+#    Updated: 2018/11/26 21:23:14 by vlytvyne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_ls
 
 SRC = ft_ls.c formers.c custom_input_handler.c \
-printer.c utils.c get_dirs.c norminette_hello.c norminette_hello2.c
+printer.c utils.c get_dirs.c norminette_hello.c norminette_hello2.c \
+sorter.c
 
 LIBS = libft.a libftprintf.a
 
