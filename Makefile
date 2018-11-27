@@ -14,18 +14,20 @@ NAME = ft_ls
 
 SRC = ft_ls.c formers.c custom_input_handler.c \
 printer.c utils.c get_dirs.c norminette_hello.c norminette_hello2.c \
-sorter.c
+sorter.c print_set1.c print_set2.c
 
 LIBS = libft.a libftprintf.a
+
+FLAGS = -Wall -Werror -Wextra
 
 all: $(NAME)
 
 
 $(NAME):
-	gcc $(SRC) $(LIBS) -o $(NAME)
+	gcc $(FLAGS) $(SRC) $(LIBS) -o $(NAME)
 
 clean:
-	@echo "clean rule do nothing"
+	@echo "Clean rule do nothing"
 
 fclean: clean
 	rm -f $(NAME)

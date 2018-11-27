@@ -11,96 +11,40 @@
 /* ************************************************************************** */
 
 #include "ls.h"
+#include "prints.h"
 
-static void	print_long(t_list *lst)
+static void	print_avec_a(t_list *lst, char *options)
 {
-	t_stat	fstat;
-	char	*file_name;
-	char	*mode_line;
-	char	*time_str;
-	char	*link_line;
-
-	link_line = ft_strnew(1000);
-	file_name = get_file_name(lst);
-	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(lst, fstat.st_mode);
-	time_str = form_time_line(fstat);
-	if (fstat.st_mode & S_IFLNK)
-		readlink((char*)lst->content, link_line, 1000);
-	if (*file_name != '.')
-	{
-		ft_printf("%-11s %3d ", mode_line, fstat.st_nlink);
-		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
-		ft_printf("%-15s ", getgrgid(fstat.st_gid)->gr_name);
-		norm_psize(mode_line, fstat);
-		ft_printf(" %s %s", time_str, file_name);
-		if (*link_line != '\0')
-			ft_printf(" -> %s", link_line);
-		ft_printf("\n");
-	}
-	norm_free_strs(&mode_line, &time_str, &link_line);
+	if (ft_strchr(options, 'o'))
+		ft_lstiter(lst, print_ao);
+	else if ((ft_strchr(options, 'm')))
+		print_ma(lst);
+	else if (ft_strchr(options, 'l'))
+		ft_lstiter(lst, print_long_with_a);
+	else if (ft_strchr(options, 'n'))
+		ft_lstiter(lst, print_na);
+	else
+		ft_lstiter(lst, print_short_with_a);
 }
 
-static void	print_long_with_a(t_list *lst)
+static void	print_sans_a(t_list *lst, char *options)
 {
-	t_stat	fstat;
-	char	*file_name;
-	char	*mode_line;
-	char	*time_str;
-	char	*link_line;
-
-	link_line = ft_strnew(1000);
-	file_name = get_file_name(lst);
-	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(lst, fstat.st_mode);
-	time_str = form_time_line(fstat);
-	if (fstat.st_mode & S_IFLNK)
-		readlink((char*)lst->content, link_line, 1000);
-	ft_printf("%-11s ", mode_line);
-	ft_printf("%3d ", fstat.st_nlink);
-	ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
-	ft_printf("%-15s ", getgrgid(fstat.st_gid)->gr_name);
-	norm_psize(mode_line, fstat);
-	ft_printf(" %s %s", time_str, file_name);
-	if (*link_line != '\0')
-		ft_printf(" -> %s", link_line);
-	ft_printf("\n");
-	norm_free_strs(&mode_line, &time_str, &link_line);
-}
-
-static void	print_short(t_list *lst)
-{
-	t_stat	fstat;
-	char	*file_name;
-	int		mode;
-
-	file_name = get_file_name(lst);
-	stat((char*)lst->content, &fstat);
-	mode = fstat.st_mode;
-	if (*file_name != '.')
-		ft_printf("%s\n", file_name);
-}
-
-static void	print_short_with_a(t_list *lst)
-{
-	t_stat	fstat;
-	char	*file_name;
-	int		mode;
-
-	file_name = get_file_name(lst);
-	stat((char*)lst->content, &fstat);
-	mode = fstat.st_mode;
-	ft_printf("%s\n", file_name);
+	if (ft_strchr(options, 'o'))
+		ft_lstiter(lst, print_o);
+	else if ((ft_strchr(options, 'm')))
+		print_m(lst);
+	else if (ft_strchr(options, 'l'))
+		ft_lstiter(lst, print_long);
+	else if (ft_strchr(options, 'n'))
+		ft_lstiter(lst, print_n);
+	else
+		ft_lstiter(lst, print_short);
 }
 
 void		printer(t_list *lst, char *options)
 {
-	if (ft_strchr(options, 'a') && ft_strchr(options, 'l'))
-		ft_lstiter(lst, print_long_with_a);
-	else if (ft_strchr(options, 'a'))
-		ft_lstiter(lst, print_short_with_a);
-	else if (ft_strchr(options, 'l'))
-		ft_lstiter(lst, print_long);
+	if (ft_strchr(options, 'a'))
+		print_avec_a(lst, options);
 	else
-		ft_lstiter(lst, print_short);
+		print_sans_a(lst, options);
 }

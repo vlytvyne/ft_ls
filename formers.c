@@ -30,7 +30,7 @@ static void	set_first_char(char *str, int mode_mask)
 		str[0] = '-';
 }
 
-char		*form_mode_line(t_list *lst, int mode)
+char		*form_mode_line(int mode)
 {
 	char	*str_mode;
 	int		mode_mask;

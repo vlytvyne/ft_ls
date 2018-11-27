@@ -42,8 +42,6 @@ static int	cmp_size(t_list *first, t_list *second)
 
 void		sorter(t_list **list, char *options)
 {
-	t_stat	fstat;
-
 	if (ft_strchr(options, 'S'))
 		sort_list(*list, cmp_size);
 	else if (ft_strchr(options, 't'))
@@ -53,4 +51,3 @@ void		sorter(t_list **list, char *options)
 	if (ft_strchr(options, 'r'))
 		reverse_list(list);
 }
-
