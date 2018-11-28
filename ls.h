@@ -35,7 +35,7 @@ void		sorter(t_list **list, char *options);
 void		error(const char *msg);
 char		*get_file_name(t_list *lst);
 void		printer(t_list *lst, char *options);
-char		*form_mode_line(int mode);
+char		*form_mode_line(t_list *lst, int mode);
 char		*form_time_line(t_stat fstat);
 void		print_custom_input(t_list *entries, char *options);
 t_list		*get_directories(t_list *entries, char *options);

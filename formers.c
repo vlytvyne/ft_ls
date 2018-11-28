@@ -30,7 +30,7 @@ static void	set_first_char(char *str, int mode_mask)
 		str[0] = '-';
 }
 
-char		*form_mode_line(int mode)
+char		*form_mode_line(t_list *lst, int mode)
 {
 	char	*str_mode;
 	int		mode_mask;
@@ -47,6 +47,10 @@ char		*form_mode_line(int mode)
 	str_mode[7] = mode & 0004 ? 'r' : '-';
 	str_mode[8] = mode & 0002 ? 'w' : '-';
 	str_mode[9] = mode & 0001 ? 'x' : '-';
+	if (mode & S_ISVTX)
+		str_mode[9] = 't';
+	if (listxattr((char*)lst->content, NULL, 0, XATTR_NOFOLLOW) > 0)
+		str_mode[10] = '@';
 	return (str_mode);
 }
 

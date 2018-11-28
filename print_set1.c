@@ -23,7 +23,7 @@ void	print_n(t_list *lst)
 	link_line = ft_strnew(1000);
 	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(fstat.st_mode);
+	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
@@ -52,7 +52,7 @@ void	print_na(t_list *lst)
 	link_line = ft_strnew(1000);
 	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(fstat.st_mode);
+	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
@@ -78,7 +78,7 @@ void	print_o(t_list *lst)
 	link_line = ft_strnew(1000);
 	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(fstat.st_mode);
+	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
@@ -106,7 +106,7 @@ void	print_ao(t_list *lst)
 	link_line = ft_strnew(1000);
 	file_name = get_file_name(lst);
 	lstat((char*)lst->content, &fstat);
-	mode_line = form_mode_line(fstat.st_mode);
+	mode_line = form_mode_line(lst, fstat.st_mode);
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
