@@ -82,7 +82,7 @@ void	print_o(t_list *lst)
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
-	if (*file_name != '.')
+	if (*file_name != '.' && getpwuid(fstat.st_uid))
 	{
 		ft_printf("%-11s %3d ", mode_line, fstat.st_nlink);
 		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
@@ -110,14 +110,16 @@ void	print_ao(t_list *lst)
 	time_str = form_time_line(fstat);
 	if (fstat.st_mode & S_IFLNK)
 		readlink((char*)lst->content, link_line, 1000);
-	ft_printf("%-11s ", mode_line);
-	ft_printf("%3d ", fstat.st_nlink);
-	ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
-	norm_psize(mode_line, fstat);
-	ft_printf(" %s %s", time_str, file_name);
-	if (*link_line != '\0')
-		ft_printf(" -> %s", link_line);
-	ft_printf("\n");
+	if (getpwuid(fstat.st_uid))
+	{
+		ft_printf("%-11s %3d ", mode_line, fstat.st_nlink);
+		ft_printf("%8s ", getpwuid(fstat.st_uid)->pw_name);
+		norm_psize(mode_line, fstat);
+		ft_printf(" %s %s", time_str, file_name);
+		if (*link_line != '\0')
+			ft_printf(" -> %s", link_line);
+		ft_printf("\n");
+	}
 	norm_free_strs(&mode_line, &time_str, &link_line);
 }
 
