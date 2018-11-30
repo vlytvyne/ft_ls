@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-static long double	fabs(long double num)
+static long double	float_abs(long double num)
 {
 	if (num < 0)
 		num *= -1;
@@ -45,7 +45,7 @@ char				*ftoa(long double num, unsigned int precision)
 	if (num < 0)
 	{
 		ft_strcat(str, "-");
-		num = fabs(num);
+		num = float_abs(num);
 	}
 	ip = (long long int)num;
 	fp = num - ip;

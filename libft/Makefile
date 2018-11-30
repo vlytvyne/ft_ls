@@ -14,10 +14,12 @@ NAME = libft.a
 
 INCLUDES = includes/
 
+FLAGS = -Werror -Wextra -Wall
+
 all: $(NAME)
 
 $(NAME):
-	gcc -Wall -Wextra -Werror -I $(INCLUDES) -c *.c
+	gcc $(FLAGS) -I $(INCLUDES) -c *.c
 	ar -rcs $(NAME) *.o
 
 clean:
