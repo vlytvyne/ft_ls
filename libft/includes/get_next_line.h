@@ -13,8 +13,8 @@
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
-# define BUFF_SIZE 32
-# define SUPPORTED_THREADS 255
+# define BUFF_SIZE 1
+# define SUPPORTED_THREADS 1
 
 typedef struct		s_fd_record
 {
