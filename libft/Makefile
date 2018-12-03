@@ -36,6 +36,8 @@ FLAGS = -Wall -Wextra -Werror
 
 .PHONY: all clean fclean re
 
+FLAGS = -Werror -Wextra -Wall
+
 all: $(NAME)
 
 $(NAME): $(OBJ)
